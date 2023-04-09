@@ -8,17 +8,27 @@
 import UIKit
 import SwiftUI
 import SnapKit
+import AVFoundation
 
 class EggViewController: UIViewController {
   
   //  MARK: - Private Properties
   private var counter = 0
+  private var totalTime = 0
+  private var secondsPassed = 0
+  private var timer = Timer()
+  private var player: AVAudioPlayer!
   
   private let eggTime = [
     "Soft" : 10,
     "Medium" : 420,
     "Hard" : 720
   ]
+  
+  private lazy var progressView: UIProgressView = {
+    let element = UIProgressView(progressViewStyle: .bar)
+    return element
+  }()
   
   private lazy var verticalStack: UIStackView = {
     let element = UIStackView()
@@ -142,16 +152,33 @@ class EggViewController: UIViewController {
   @objc private func eggPressed(_ sender: UIButton) {
     guard let result = sender.currentTitle else { return }
     guard let totalResult = eggTime[result] else { return }
+    totalTime = totalResult
     counter = totalResult
     
-    Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
+    questionLabel.text = result
+    
+    progressView.progress = 0.0
+    secondsPassed = 0
+    
+    timer.invalidate()
+    timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
+    
   }
   
   @objc func updateTimer() {
     timeLabel.text = "\(counter)"
     
-    if counter > 0 {
+    
+    if secondsPassed < totalTime {
+      secondsPassed += 1
       counter -= 1
+      let percentegeProgress = Float(secondsPassed) / Float(totalTime)
+      progressView.progress = percentegeProgress
+      
+    } else {
+      timer.invalidate()
+      questionLabel.text = "Done"
+      playSound()
     }
   }
 }
@@ -166,6 +193,7 @@ extension EggViewController {
     
     labelView.addSubview(questionLabel)
     timerView.addSubview(timeLabel)
+    timerView.addSubview(progressView)
     
     eggsStackView.addArrangedSubview(softView)
     eggsStackView.addArrangedSubview(mediumView)
@@ -191,7 +219,9 @@ extension EggViewController {
     }
     
     timeLabel.snp.makeConstraints { make in
-      make.edges.equalToSuperview()
+      make.leading.trailing.edges.equalToSuperview()
+      make.height.equalToSuperview().dividedBy(2)
+      make.bottom.equalTo(progressView.snp.top).inset(30)
     }
     
     softButton.snp.makeConstraints { make in
@@ -217,6 +247,18 @@ extension EggViewController {
     hardImage.snp.makeConstraints { make in
       make.edges.equalToSuperview()
     }
+    
+    progressView.snp.makeConstraints { make in
+      make.bottom.equalToSuperview().inset(25)
+      make.leading.trailing.equalToSuperview().inset(40)
+      make.height.equalTo(15)
+    }
+  }
+  
+  private func playSound() {
+    guard let url = Bundle.main.url(forResource: "alarm_sound", withExtension: "mp3") else { return }
+    player = try! AVAudioPlayer(contentsOf: url)
+    player.play()
   }
 }
 
