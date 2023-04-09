@@ -27,6 +27,8 @@ class EggViewController: UIViewController {
   
   private lazy var progressView: UIProgressView = {
     let element = UIProgressView(progressViewStyle: .bar)
+    element.progressTintColor = .yellow
+    element.trackTintColor = .gray
     return element
   }()
   
@@ -71,7 +73,7 @@ class EggViewController: UIViewController {
     return element
   }()
   
-  //  MARK: - SoftView
+  //  MARK: - Soft View
   private lazy var softView: UIView = {
     let element = UIView()
     return element
@@ -93,7 +95,7 @@ class EggViewController: UIViewController {
     return element
   }()
   
-  //  MARK: - MediumView
+  //  MARK: - Medium View
   private lazy var mediumView: UIView = {
     let element = UIView()
     return element
@@ -115,7 +117,7 @@ class EggViewController: UIViewController {
     return element
   }()
   
-  //  MARK: - HardView
+  //  MARK: - Hard View
   private lazy var hardView: UIView = {
     let element = UIView()
     return element
@@ -137,6 +139,7 @@ class EggViewController: UIViewController {
     return element
   }()
   
+  //  MARK: -  Timer View
   private lazy var timerView: UIView = {
     let element = UIView()
     return element
@@ -168,7 +171,6 @@ class EggViewController: UIViewController {
   @objc func updateTimer() {
     timeLabel.text = "\(counter)"
     
-    
     if secondsPassed < totalTime {
       secondsPassed += 1
       counter -= 1
@@ -183,6 +185,7 @@ class EggViewController: UIViewController {
   }
 }
 
+//  MARK: -  Private Methods
 extension EggViewController {
   private func addViews() {
     view.addSubview(verticalStack)
@@ -219,9 +222,8 @@ extension EggViewController {
     }
     
     timeLabel.snp.makeConstraints { make in
-      make.leading.trailing.edges.equalToSuperview()
+      make.leading.trailing.top.equalToSuperview()
       make.height.equalToSuperview().dividedBy(2)
-      make.bottom.equalTo(progressView.snp.top).inset(30)
     }
     
     softButton.snp.makeConstraints { make in
@@ -249,8 +251,8 @@ extension EggViewController {
     }
     
     progressView.snp.makeConstraints { make in
-      make.bottom.equalToSuperview().inset(25)
       make.leading.trailing.equalToSuperview().inset(40)
+      make.bottom.equalToSuperview().inset(15)
       make.height.equalTo(15)
     }
   }
